@@ -100,16 +100,9 @@ public class XMLAccessor extends Accessor {
 			}
 		}
 		String type = attributes.getNamedItem(KIND).getTextContent();
-		if (TEXT.equals(type)) {
-			slide.append(new TextItem(level, item.getTextContent()));
-		}
-		else {
-			if (IMAGE.equals(type)) {
-				slide.append(new BitmapItem(level, item.getTextContent()));
-			}
-			else {
-				System.err.println(UNKNOWNTYPE);
-			}
+		SlideItem slideItem = SlideItemFactory.create(type, level, item.getTextContent());
+		if (slideItem != null) {
+			slide.append(slideItem);
 		}
 	}
 
