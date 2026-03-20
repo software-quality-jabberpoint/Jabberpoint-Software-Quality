@@ -1,4 +1,6 @@
 import java.util.ArrayList;
+import java.awt.Window;
+import java.io.IOException;
 
 
 /**
@@ -96,7 +98,26 @@ public class Presentation {
 		return getSlide(currentSlideNumber);
 	}
 
+	public void openPresentation(Accessor accessor, String filename) throws IOException {
+		clear();
+		accessor.loadFile(this, filename);
+		setSlideNumber(0);
+	}
+
+	public void savePresentation(Accessor accessor, String filename) throws IOException {
+		accessor.saveFile(this, filename);
+	}
+
 	public void exit(int n) {
-		System.exit(n);
+		boolean closedWindow = false;
+		for (Window window : Window.getWindows()) {
+			if (window.isDisplayable()) {
+				window.dispose();
+				closedWindow = true;
+			}
+		}
+		if (!closedWindow || n != 0) {
+			System.exit(n);
+		}
 	}
 }

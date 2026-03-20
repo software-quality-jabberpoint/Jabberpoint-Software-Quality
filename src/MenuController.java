@@ -22,6 +22,8 @@ public class MenuController extends MenuBar {
 	
 	private Frame parent; // the frame, only used as parent for the Dialogs
 	private Presentation presentation; // Commands are given to the presentation
+	private Command nextSlideCommand;
+	private Command previousSlideCommand;
 	
 	private static final long serialVersionUID = 227L;
 	
@@ -48,6 +50,8 @@ public class MenuController extends MenuBar {
 	public MenuController(Frame frame, Presentation pres) {
 		parent = frame;
 		presentation = pres;
+		nextSlideCommand = new NextSlideCommand(presentation);
+		previousSlideCommand = new PreviousSlideCommand(presentation);
 		MenuItem menuItem;
 		Menu fileMenu = new Menu(FILE);
 		fileMenu.add(menuItem = mkMenuItem(OPEN));
@@ -96,13 +100,13 @@ public class MenuController extends MenuBar {
 		viewMenu.add(menuItem = mkMenuItem(NEXT));
 		menuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent actionEvent) {
-				presentation.nextSlide();
+				nextSlideCommand.execute();
 			}
 		});
 		viewMenu.add(menuItem = mkMenuItem(PREV));
 		menuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent actionEvent) {
-				presentation.prevSlide();
+				previousSlideCommand.execute();
 			}
 		});
 		viewMenu.add(menuItem = mkMenuItem(GOTO));
