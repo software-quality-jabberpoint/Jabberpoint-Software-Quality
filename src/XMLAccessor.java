@@ -29,6 +29,7 @@ public class XMLAccessor extends Accessor {
 	
     /** Default API to use. */
     protected static final String DEFAULT_API_TO_USE = "dom";
+    private final SlideItemFactory slideItemFactory = new SlideItemFactory();
     
     /** namen van xml tags of attributen */
     protected static final String SHOWTITLE = "showtitle";
@@ -37,8 +38,6 @@ public class XMLAccessor extends Accessor {
     protected static final String ITEM = "item";
     protected static final String LEVEL = "level";
     protected static final String KIND = "kind";
-    protected static final String TEXT = "text";
-    protected static final String IMAGE = "image";
     
     /** tekst van messages */
     protected static final String PCE = "Parser Configuration Exception";
@@ -100,16 +99,11 @@ public class XMLAccessor extends Accessor {
 			}
 		}
 		String type = attributes.getNamedItem(KIND).getTextContent();
-		if (TEXT.equals(type)) {
-			slide.append(new TextItem(level, item.getTextContent()));
+		try {
+			slide.append(slideItemFactory.createSlideItem(type, level, item.getTextContent()));
 		}
-		else {
-			if (IMAGE.equals(type)) {
-				slide.append(new BitmapItem(level, item.getTextContent()));
-			}
-			else {
-				System.err.println(UNKNOWNTYPE);
-			}
+		catch (IllegalArgumentException exception) {
+			System.err.println(UNKNOWNTYPE + ": " + type);
 		}
 	}
 
@@ -130,12 +124,12 @@ public class XMLAccessor extends Accessor {
 				SlideItem slideItem = (SlideItem) slideItems.elementAt(itemNumber);
 				out.print("<item kind="); 
 				if (slideItem instanceof TextItem) {
-					out.print("\"text\" level=\"" + slideItem.getLevel() + "\">");
+					out.print("\"" + SlideItemFactory.TEXT + "\" level=\"" + slideItem.getLevel() + "\">");
 					out.print( ( (TextItem) slideItem).getText());
 				}
 				else {
 					if (slideItem instanceof BitmapItem) {
-						out.print("\"image\" level=\"" + slideItem.getLevel() + "\">");
+						out.print("\"" + SlideItemFactory.IMAGE + "\" level=\"" + slideItem.getLevel() + "\">");
 						out.print( ( (BitmapItem) slideItem).getName());
 					}
 					else {
