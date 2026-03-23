@@ -24,17 +24,19 @@ public class KeyController extends KeyAdapter {
 			case KeyEvent.VK_DOWN:
 			case KeyEvent.VK_ENTER:
 			case '+':
-				presentation.nextSlide();
+				new NextSlideCommand(presentation).execute();
 				break;
 			case KeyEvent.VK_PAGE_UP:
 			case KeyEvent.VK_UP:
 			case '-':
-				presentation.prevSlide();
+				new PreviousSlideCommand(presentation).execute();
 				break;
 			case 'q':
 			case 'Q':
+				// TODO: replace with new ExitCommand(jabberPoint).execute()
+				// once Person 3 wires JabberPoint through
 				System.exit(0);
-				break; // Probably never reached!!
+				break;
 			default:
 				break;
 		}
