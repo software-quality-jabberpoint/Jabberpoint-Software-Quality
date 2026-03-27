@@ -35,7 +35,12 @@ public class MenuController extends MenuBar {
 	protected static final String PREV = "Prev";
 	protected static final String SAVE = "Save";
 	protected static final String VIEW = "View";
-	
+	protected static final String TEST_FILE = "test.xml";
+	protected static final String SAVE_FILE = "dump.xml";
+	protected static final String IOEX = "IO Exception: ";
+	protected static final String LOAD_ERR = "Load Error";
+	protected static final String SAVE_ERR = "Save Error";
+
 	public MenuController(Frame frame, Presentation pres) {
 		parent = frame;
 		presentation = pres;
