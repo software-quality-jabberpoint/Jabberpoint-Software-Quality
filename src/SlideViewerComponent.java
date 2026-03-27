@@ -6,7 +6,6 @@ import java.awt.Rectangle;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
-
 /** <p>SlideViewerComponent is a graphical component that can show slides.</p>
  * @author Ian F. Darwin, ian@darwinsys.com, Gert Florijn, Sylvia Stuurman
  * @version 1.1 2002/12/17 Gert Florijn
@@ -39,6 +38,7 @@ public class SlideViewerComponent extends JComponent implements PresentationObse
 		presentation = pres;
 		labelFont = new Font(FONTNAME, FONTSTYLE, FONTHEIGHT);
 		this.frame = frame;
+		presentation.addObserver(this);
 	}
 
 	public Dimension getPreferredSize() {
@@ -47,7 +47,7 @@ public class SlideViewerComponent extends JComponent implements PresentationObse
 
 	public void update(Presentation presentation) {
 		this.presentation = presentation;
-		this.slide = presentation.getSlide(presentation.getSlideNumber());
+		this.slide = presentation.getCurrentSlide();
 		repaint();
 		frame.setTitle(presentation.getTitle());
 	}
