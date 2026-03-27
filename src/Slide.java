@@ -25,6 +25,9 @@ public class Slide {
 
 	// Add a slide item
 	public void append(SlideItem anItem) {
+		if (anItem == null) {
+			return;
+		}
 		items.addElement(anItem);
 	}
 
@@ -45,6 +48,9 @@ public class Slide {
 
 	// give the  SlideItem
 	public SlideItem getSlideItem(int number) {
+		if (number < 0 || number >= getSize()) {
+			return null;
+		}
 		return (SlideItem)items.elementAt(number);
 	}
 
