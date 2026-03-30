@@ -21,12 +21,17 @@ public class JabberPoint {
 	protected static final String JABERR = "Jabberpoint Error ";
 	protected static final String JABVERSION = "Jabberpoint 1.6 - OU version";
 
+	public void exit() {
+		System.exit(0);
+	}
+
 	/** Het Main Programma */
 	public static void main(String argv[]) {
 		
 		Style.createStyles();
+		JabberPoint jabberPoint = new JabberPoint();
 		Presentation presentation = new Presentation();
-		new SlideViewerFrame(JABVERSION, presentation);
+		new SlideViewerFrame(JABVERSION, presentation, jabberPoint);
 		try {
 			if (argv.length == 0) { // een demo presentatie
 				Accessor.getDemoAccessor().loadFile(presentation, "");

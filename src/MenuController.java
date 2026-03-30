@@ -20,6 +20,7 @@ public class MenuController extends MenuBar {
 	
 	private Frame parent; // the frame, only used as parent for the Dialogs
 	private Presentation presentation; // Commands are given to the presentation
+	private JabberPoint jabberPoint;
 	
 	private static final long serialVersionUID = 227L;
 	
@@ -36,9 +37,10 @@ public class MenuController extends MenuBar {
 	protected static final String SAVE = "Save";
 	protected static final String VIEW = "View";
 	
-	public MenuController(Frame frame, Presentation pres) {
+	public MenuController(Frame frame, Presentation pres, JabberPoint jabberPoint) {
 		parent = frame;
 		presentation = pres;
+		this.jabberPoint = jabberPoint;
 		MenuItem menuItem;
 		Menu fileMenu = new Menu(FILE);
 		fileMenu.add(menuItem = mkMenuItem(OPEN));
@@ -65,9 +67,7 @@ public class MenuController extends MenuBar {
 		fileMenu.add(menuItem = mkMenuItem(EXIT));
 		menuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent actionEvent) {
-				// TODO: replace with new ExitCommand(jabberPoint).execute()
-				// once Person 3 passes JabberPoint into MenuController
-				presentation.exit(0);
+				new ExitCommand(jabberPoint).execute();
 			}
 		});
 		add(fileMenu);

@@ -23,10 +23,62 @@ jobs:
       - name: Compile Java source and tests
         run: |
           mkdir out
+          mkdir out-app
           find src -name "*.java" > sources.txt
           find test -name "*.java" > tests.txt
           javac -d out @sources.txt @tests.txt
+          javac -d out-app @sources.txt
 
-      - name: Run unit tests
+      - name: Download JaCoCo
         run: |
-          java -cp out AllTests
+          curl -sSL -o jacoco.zip https://repo1.maven.org/maven2/org/jacoco/jacoco/0.8.12/jacoco-0.8.12.zip
+          unzip -q jacoco.zip -d jacoco
+
+      - name: Run unit tests with coverage
+        run: |
+          java -javaagent:jacoco/lib/jacocoagent.jar=destfile=jacoco.exec -cp out AllTests
+
+      - name: Generate coverage report
+        run: |
+          java -jar jacoco/lib/jacococli.jar report jacoco.exec --classfiles out --sourcefiles src --html coverage-html --xml coverage.xml --csv coverage.csv
+
+      - name: Coverage summary
+        run: |
+          awk -F, '
+            NR>1 {
+              miss_i += $4; cov_i += $5;
+              miss_b += $6; cov_b += $7;
+              miss_l += $8; cov_l += $9;
+            }
+            END {
+              instr = (cov_i + miss_i) ? (100 * cov_i / (cov_i + miss_i)) : 0;
+              br = (cov_b + miss_b) ? (100 * cov_b / (cov_b + miss_b)) : 0;
+              ln = (cov_l + miss_l) ? (100 * cov_l / (cov_l + miss_l)) : 0;
+              printf("Instruction coverage: %.2f%%\n", instr);
+              printf("Branch coverage: %.2f%%\n", br);
+              printf("Line coverage: %.2f%%\n", ln);
+            }
+          ' coverage.csv | tee coverage-summary.txt
+
+      - name: Build executable JAR
+        run: |
+          mkdir -p release
+          jar cfe release/JabberPoint.jar JabberPoint -C out-app .
+
+      - name: Static quality check (javac -Xlint)
+        run: |
+          mkdir out-lint
+          javac -Xlint:all -d out-lint @sources.txt @tests.txt 2> lint-report.txt || true
+          echo "Static analysis report generated in lint-report.txt"
+
+      - name: Upload coverage and lint artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-reports
+          path: |
+            coverage-html
+            coverage.xml
+            coverage.csv
+            coverage-summary.txt
+            lint-report.txt
+            release/JabberPoint.jar

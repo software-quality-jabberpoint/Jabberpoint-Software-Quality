@@ -13,9 +13,11 @@ import java.awt.event.KeyAdapter;
 
 public class KeyController extends KeyAdapter {
 	private Presentation presentation; // Commands are given to the presentation
+	private JabberPoint jabberPoint;
 
-	public KeyController(Presentation p) {
+	public KeyController(Presentation p, JabberPoint jabberPoint) {
 		presentation = p;
+		this.jabberPoint = jabberPoint;
 	}
 
 	public void keyPressed(KeyEvent keyEvent) {
@@ -33,9 +35,7 @@ public class KeyController extends KeyAdapter {
 				break;
 			case 'q':
 			case 'Q':
-				// TODO: replace with new ExitCommand(jabberPoint).execute()
-				// once Person 3 wires JabberPoint through
-				System.exit(0);
+				new ExitCommand(jabberPoint).execute();
 				break;
 			default:
 				break;
