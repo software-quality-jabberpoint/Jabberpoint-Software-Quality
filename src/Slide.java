@@ -1,9 +1,10 @@
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.image.ImageObserver;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
-/** <p>A slide. This class has a drawing functionality.</p>
+/** <p>A slide containing presentation data.</p>
  * @author Ian F. Darwin, ian@darwinsys.com, Gert Florijn, Sylvia Stuurman
  * @version 1.1 2002/12/17 Gert Florijn
  * @version 1.2 2003/11/19 Sylvia Stuurman
@@ -17,10 +18,10 @@ public class Slide {
 	public final static int WIDTH = 1200;
 	public final static int HEIGHT = 800;
 	protected String title; // title is saved separately
-	protected Vector<SlideItem> items; // slide items are saved in a Vector
+	protected List<SlideItem> items; // slide items are saved in a list
 
 	public Slide() {
-		items = new Vector<SlideItem>();
+		items = new ArrayList<SlideItem>();
 	}
 
 	// Add a slide item
@@ -28,7 +29,7 @@ public class Slide {
 		if (anItem == null) {
 			return;
 		}
-		items.addElement(anItem);
+		items.add(anItem);
 	}
 
 	// give the title of the slide
@@ -51,11 +52,11 @@ public class Slide {
 		if (number < 0 || number >= getSize()) {
 			return null;
 		}
-		return (SlideItem)items.elementAt(number);
+		return items.get(number);
 	}
 
-	// give all SlideItems in a Vector
-	public Vector<SlideItem> getSlideItems() {
+	// give all SlideItems
+	public List<SlideItem> getSlideItems() {
 		return items;
 	}
 
@@ -67,22 +68,21 @@ public class Slide {
 	// draw the slide
 	public void draw(Graphics g, Rectangle area, ImageObserver view) {
 		float scale = getScale(area);
-	    int y = area.y;
-	// Title is handled separately
-	    SlideItem slideItem = new TextItem(0, getTitle());
-	    Style style = Style.getStyle(slideItem.getLevel());
-	    slideItem.draw(area.x, y, scale, g, style, view);
-	    y += slideItem.getBoundingBox(g, view, scale, style).height;
-	    for (int number=0; number<getSize(); number++) {
-	      slideItem = (SlideItem)getSlideItems().elementAt(number);
-	      style = Style.getStyle(slideItem.getLevel());
-	      slideItem.draw(area.x, y, scale, g, style, view);
-	      y += slideItem.getBoundingBox(g, view, scale, style).height;
-	    }
-	  }
+		int y = area.y;
+		// Title is handled separately
+		SlideItem slideItem = new TextItem(0, getTitle());
+		Style style = Style.getStyle(slideItem.getLevel());
+		slideItem.draw(area.x, y, scale, g, style, view);
+		y += slideItem.getBoundingBox(g, view, scale, style).height;
+		for (SlideItem currentItem : getSlideItems()) {
+			style = Style.getStyle(currentItem.getLevel());
+			currentItem.draw(area.x, y, scale, g, style, view);
+			y += currentItem.getBoundingBox(g, view, scale, style).height;
+		}
+	}
 
 	// Give the scale for drawing
-	private float getScale(Rectangle area) {
-		return Math.min(((float)area.width) / ((float)WIDTH), ((float)area.height) / ((float)HEIGHT));
+	public float getScale(Rectangle area) {
+		return Math.min(((float) area.width) / ((float) WIDTH), ((float) area.height) / ((float) HEIGHT));
 	}
 }

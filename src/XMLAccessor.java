@@ -1,4 +1,4 @@
-import java.util.Vector;
+import java.util.List;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -45,7 +45,7 @@ public class XMLAccessor extends Accessor {
     protected static final String NFE = "Number Format Exception";
     
     
-    private String getTitle(Element element, String tagName) {
+    public String getTitle(Element element, String tagName) {
     	NodeList titles = element.getElementsByTagName(tagName);
     	return titles.item(0).getTextContent();
     	
@@ -86,7 +86,7 @@ public class XMLAccessor extends Accessor {
 		}	
 	}
 
-	protected void loadSlideItem(Slide slide, Element item) {
+	public void loadSlideItem(Slide slide, Element item) {
 		int level = 1; // default
 		NamedNodeMap attributes = item.getAttributes();
 		String leveltext = attributes.getNamedItem(LEVEL).getTextContent();
@@ -119,9 +119,8 @@ public class XMLAccessor extends Accessor {
 			Slide slide = presentation.getSlide(slideNumber);
 			out.println("<slide>");
 			out.println("<title>" + slide.getTitle() + "</title>");
-			Vector<SlideItem> slideItems = slide.getSlideItems();
-			for (int itemNumber = 0; itemNumber<slideItems.size(); itemNumber++) {
-				SlideItem slideItem = (SlideItem) slideItems.elementAt(itemNumber);
+			List<SlideItem> slideItems = slide.getSlideItems();
+			for (SlideItem slideItem : slideItems) {
 				out.print("<item kind="); 
 				if (slideItem instanceof TextItem) {
 					out.print("\"" + SlideItemFactory.TEXT + "\" level=\"" + slideItem.getLevel() + "\">");
