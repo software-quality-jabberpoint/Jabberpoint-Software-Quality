@@ -1,11 +1,12 @@
 public class PreviousSlideCommand implements Command {
-	private final Presentation presentation;
+    private Presentation presentation;
 
-	public PreviousSlideCommand(Presentation presentation) {
-		this.presentation = presentation;
-	}
+    public PreviousSlideCommand(Presentation presentation) {
+        this.presentation = presentation;
+    }
 
-	public void execute() {
-		presentation.prevSlide();
-	}
+    @Override
+    public void execute() {
+        presentation.prevSlide();
+    }
 }

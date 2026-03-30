@@ -1,22 +1,21 @@
+import javax.swing.JOptionPane;
 import java.io.IOException;
 
 public class SavePresentationCommand implements Command {
-	private static final String SAVEFILE = "dump.xml";
-	private static final String IOEX = "IO Exception: ";
+    private Presentation presentation;
 
-	private final Presentation presentation;
+    public SavePresentationCommand(Presentation presentation) {
+        this.presentation = presentation;
+    }
 
-	public SavePresentationCommand(Presentation presentation) {
-		this.presentation = presentation;
-	}
-
-	public void execute() {
-		Accessor xmlAccessor = new XMLAccessor();
-		try {
-			xmlAccessor.saveFile(presentation, SAVEFILE);
-		}
-		catch (IOException exception) {
-			System.err.println(IOEX + exception);
-		}
-	}
+    @Override
+    public void execute() {
+        String filename = JOptionPane.showInputDialog("File name?");
+        try {
+            new XMLAccessor().saveFile(presentation, filename);
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(null, "IO Error: " + ex,
+                    "Jabberpoint Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
 }

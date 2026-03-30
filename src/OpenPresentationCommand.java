@@ -1,24 +1,23 @@
+import javax.swing.JOptionPane;
 import java.io.IOException;
 
 public class OpenPresentationCommand implements Command {
-	private static final String TESTFILE = "test.xml";
-	private static final String IOEX = "IO Exception: ";
+    private Presentation presentation;
 
-	private final Presentation presentation;
+    public OpenPresentationCommand(Presentation presentation) {
+        this.presentation = presentation;
+    }
 
-	public OpenPresentationCommand(Presentation presentation) {
-		this.presentation = presentation;
-	}
-
-	public void execute() {
-		presentation.clear();
-		Accessor xmlAccessor = new XMLAccessor();
-		try {
-			xmlAccessor.loadFile(presentation, TESTFILE);
-			presentation.setSlideNumber(0);
-		}
-		catch (IOException exception) {
-			System.err.println(IOEX + exception);
-		}
-	}
+    @Override
+    public void execute() {
+        presentation.clear();
+        String filename = JOptionPane.showInputDialog("File name?");
+        try {
+            new XMLAccessor().loadFile(presentation, filename);
+            presentation.setSlideNumber(0);
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(null, "IO Error: " + ex,
+                    "Jabberpoint Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
 }

@@ -20,8 +20,13 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Compile Java source
+      - name: Compile Java source and tests
         run: |
           mkdir out
           find src -name "*.java" > sources.txt
-          javac -d out @sources.txt
+          find test -name "*.java" > tests.txt
+          javac -d out @sources.txt @tests.txt
+
+      - name: Run unit tests
+        run: |
+          java -cp out AllTests

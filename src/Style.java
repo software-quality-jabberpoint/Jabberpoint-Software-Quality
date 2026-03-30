@@ -35,6 +35,12 @@ public class Style {
 	}
 
 	public static Style getStyle(int level) {
+		if (styles == null) {
+			createStyles();
+		}
+		if (level < 0) {
+			level = 0;
+		}
 		if (level >= styles.length) {
 			level = styles.length - 1;
 		}
