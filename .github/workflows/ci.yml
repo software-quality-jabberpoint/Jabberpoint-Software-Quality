@@ -1,0 +1,123 @@
+name: CI Build, Test, Release
+
+on:
+  pull_request:
+    branches: [ main, test, develop ]
+  push:
+    branches: [ main, test, develop ]
+
+jobs:
+  quality-linux:
+    name: Quality Gate (Linux)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Compile Java source and tests
+        run: |
+          mkdir out
+          mkdir out-app
+          find src -name "*.java" > sources.txt
+          find test -name "*.java" > tests.txt
+          javac -d out @sources.txt @tests.txt
+          javac -d out-app @sources.txt
+
+      - name: Download JaCoCo
+        run: |
+          curl -sSL -o jacoco.zip https://repo1.maven.org/maven2/org/jacoco/jacoco/0.8.12/jacoco-0.8.12.zip
+          unzip -q jacoco.zip -d jacoco
+
+      - name: Run unit tests with coverage
+        run: |
+          java -javaagent:jacoco/lib/jacocoagent.jar=destfile=jacoco.exec -cp out AllTests
+
+      - name: Generate coverage report
+        run: |
+          java -jar jacoco/lib/jacococli.jar report jacoco.exec --classfiles out --sourcefiles src --html coverage-html --xml coverage.xml --csv coverage.csv
+
+      - name: Coverage summary
+        run: |
+          awk -F, '
+            NR>1 {
+              miss_i += $4; cov_i += $5;
+              miss_b += $6; cov_b += $7;
+              miss_l += $8; cov_l += $9;
+            }
+            END {
+              instr = (cov_i + miss_i) ? (100 * cov_i / (cov_i + miss_i)) : 0;
+              br = (cov_b + miss_b) ? (100 * cov_b / (cov_b + miss_b)) : 0;
+              ln = (cov_l + miss_l) ? (100 * cov_l / (cov_l + miss_l)) : 0;
+              printf("Instruction coverage: %.2f%%\n", instr);
+              printf("Branch coverage: %.2f%%\n", br);
+              printf("Line coverage: %.2f%%\n", ln);
+              if (ln < 75) {
+                printf("ERROR: Line coverage %.2f%% is below required 75.00%%\n", ln) > "/dev/stderr";
+                exit 1;
+              }
+            }
+          ' coverage.csv | tee coverage-summary.txt
+
+      - name: Build executable JAR
+        run: |
+          mkdir -p release
+          jar cfe release/JabberPoint.jar JabberPoint -C out-app .
+
+      - name: Static quality check (javac -Xlint)
+        run: |
+          mkdir out-lint
+          javac -Xlint:all -d out-lint @sources.txt @tests.txt 2> lint-report.txt || true
+          echo "Static analysis report generated in lint-report.txt"
+
+      - name: Upload Linux quality artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-reports-linux
+          path: |
+            coverage-html
+            coverage.xml
+            coverage.csv
+            coverage-summary.txt
+            lint-report.txt
+            release/JabberPoint.jar
+
+  release-main:
+    name: Release Artifact (Main)
+    runs-on: ubuntu-latest
+    needs: quality-linux
+    if: github.event_name == 'push' && github.ref_name == 'main'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Compile app for release
+        run: |
+          mkdir -p out-app
+          find src -name "*.java" > sources.txt
+          javac -d out-app @sources.txt
+
+      - name: Build release JAR
+        run: |
+          mkdir -p release
+          jar cfe release/JabberPoint.jar JabberPoint -C out-app .
+
+      - name: Upload main release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-release-artifact
+          path: |
+            release/JabberPoint.jar
