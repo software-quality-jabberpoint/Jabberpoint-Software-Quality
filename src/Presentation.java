@@ -15,7 +15,7 @@ import java.util.List;
 
 public class Presentation {
     private String showTitle; // title of the presentation
-    private ArrayList<Slide> showList = null; // an ArrayList with Slides
+    private List<Slide> showList = null; // the slides in this presentation
     private int currentSlideNumber = 0; // the slidenummer of the current Slide
     private List<PresentationObserver> observers; // registered presentation observers
 
@@ -89,7 +89,7 @@ public class Presentation {
         if (number < 0 || number >= getSize()){
             return null;
         }
-        return (Slide)showList.get(number);
+        return showList.get(number);
     }
 
     // Give the current slide
@@ -115,7 +115,4 @@ public class Presentation {
         }
     }
 
-    public void exit(int n) {
-        System.exit(n);
-    }
 }

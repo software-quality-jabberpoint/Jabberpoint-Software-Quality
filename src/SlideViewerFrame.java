@@ -21,24 +21,24 @@ public class SlideViewerFrame extends JFrame {
 	public final static int WIDTH = 1200;
 	public final static int HEIGHT = 800;
 	
-	public SlideViewerFrame(String title, Presentation presentation) {
+	public SlideViewerFrame(String title, Presentation presentation, JabberPoint jabberPoint) {
 		super(title);
 		SlideViewerComponent slideViewerComponent = new SlideViewerComponent(presentation, this);
-		setupWindow(slideViewerComponent, presentation);
+		setUpWindow(slideViewerComponent, presentation, jabberPoint);
 	}
 
 // Setup GUI
-	public void setupWindow(SlideViewerComponent 
-			slideViewerComponent, Presentation presentation) {
+	public void setUpWindow(SlideViewerComponent 
+			slideViewerComponent, Presentation presentation, JabberPoint jabberPoint) {
 		setTitle(JABTITLE);
 		addWindowListener(new WindowAdapter() {
 				public void windowClosing(WindowEvent e) {
-					System.exit(0);
+					new ExitCommand(jabberPoint).execute();
 				}
 			});
 		getContentPane().add(slideViewerComponent);
-		addKeyListener(new KeyController(presentation)); // add a controller
-		setMenuBar(new MenuController(this, presentation));	// add another controller
+		addKeyListener(new KeyController(presentation, jabberPoint)); // add a controller
+		setMenuBar(new MenuController(this, presentation, jabberPoint));	// add another controller
 		setSize(new Dimension(WIDTH, HEIGHT)); // Same sizes as Slide has.
 		setVisible(true);
 	}

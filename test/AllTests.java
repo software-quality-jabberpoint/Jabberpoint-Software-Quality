@@ -3,6 +3,10 @@ public class AllTests {
 		PresentationTest.runAll();
 		SlideTest.runAll();
 		StyleTest.runAll();
+		CommandTest.runAll();
+		XMLAccessorTest.runAll();
+		SlideItemFactoryTest.runAll();
+		KeyControllerTest.runAll();
 		System.out.println("All tests passed.");
 	}
 }
