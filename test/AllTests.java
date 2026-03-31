@@ -3,6 +3,9 @@ public class AllTests {
 		PresentationTest.runAll();
 		SlideTest.runAll();
 		StyleTest.runAll();
+		RenderTest.runAll();
+		DemoPresentationTest.runAll();
+		XMLAccessorSaveTest.runAll();
 		CommandTest.runAll();
 		XMLAccessorTest.runAll();
 		SlideItemFactoryTest.runAll();
