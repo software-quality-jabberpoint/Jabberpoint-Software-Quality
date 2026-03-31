@@ -1,15 +1,15 @@
 # Rubric Alignment Checklist
 
-Reference rubric: `only_inside_docs/SQ_scroingrubrics.pdf`
+Reference rubric: `docs/SQ_scroingrubrics.pdf` (add this file to `docs/` for submission)
 
 ## Analyse
-- System/class analysis documented with UML class diagram in `only_inside_docs/`.
+- System/class analysis documented with UML class diagram in `docs/Class_Diagram_Advice_Final_V0.2.asta`.
 
 ## Advise
-- Advice report provided in `only_inside_docs/JabberPoint Redesign Advice (3).docx`.
+- Advice report provided in `docs/JabberPoint_Redesign_Advice_Final.pdf`.
 
 ## Designs
-- Redesign class diagram present in `only_inside_docs/sqfinalldesign.pdf`.
+- Redesign class diagram present in `docs/Class_Diagram_Advice_Final_V0.2.asta`.
 - Design patterns reflected in implementation:
   - Observer: `Presentation` + `PresentationObserver`
   - Command: `Command` + concrete commands
