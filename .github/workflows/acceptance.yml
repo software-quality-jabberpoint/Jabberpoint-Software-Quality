@@ -31,19 +31,19 @@ jobs:
           $testFiles = Get-ChildItem -Path test -Filter *.java -Recurse | ForEach-Object { $_.FullName.Replace($cwd, '') }
           $srcFiles | Out-File -FilePath sources.txt -Encoding ascii
           $testFiles | Out-File -FilePath tests.txt -Encoding ascii
-          javac -d out @sources.txt @tests.txt
-          javac -d out-app @sources.txt
+          & "$env:JAVA_HOME\bin\javac.exe" -d out '@sources.txt' '@tests.txt'
+          & "$env:JAVA_HOME\bin\javac.exe" -d out-app '@sources.txt'
 
       - name: Run tests (Windows)
         shell: pwsh
         run: |
-          java -cp out AllTests
+          & "$env:JAVA_HOME\bin\java.exe" -cp out AllTests
 
       - name: Build executable JAR (Windows)
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Path release -Force | Out-Null
-          jar cfe release/JabberPoint.jar JabberPoint -C out-app .
+          & "$env:JAVA_HOME\bin\jar.exe" cfe release/JabberPoint.jar JabberPoint -C out-app .
 
       - name: Upload Windows acceptance artifacts
         uses: actions/upload-artifact@v4
