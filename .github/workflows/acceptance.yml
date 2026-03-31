@@ -26,8 +26,11 @@ jobs:
         run: |
           New-Item -ItemType Directory -Path out -Force | Out-Null
           New-Item -ItemType Directory -Path out-app -Force | Out-Null
-          Get-ChildItem -Path src -Filter *.java -Recurse | ForEach-Object { $_.FullName } | Set-Content sources.txt
-          Get-ChildItem -Path test -Filter *.java -Recurse | ForEach-Object { $_.FullName } | Set-Content tests.txt
+          $cwd = (Get-Location).Path + '\'
+          $srcFiles = Get-ChildItem -Path src -Filter *.java -Recurse | ForEach-Object { $_.FullName.Replace($cwd, '') }
+          $testFiles = Get-ChildItem -Path test -Filter *.java -Recurse | ForEach-Object { $_.FullName.Replace($cwd, '') }
+          $srcFiles | Out-File -FilePath sources.txt -Encoding ascii
+          $testFiles | Out-File -FilePath tests.txt -Encoding ascii
           javac -d out @sources.txt @tests.txt
           javac -d out-app @sources.txt
 
@@ -48,3 +51,4 @@ jobs:
           name: acceptance-windows-artifacts
           path: |
             release/JabberPoint.jar
+
