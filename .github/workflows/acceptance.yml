@@ -26,21 +26,24 @@ jobs:
         run: |
           New-Item -ItemType Directory -Path out -Force | Out-Null
           New-Item -ItemType Directory -Path out-app -Force | Out-Null
-          Get-ChildItem -Path src -Filter *.java -Recurse | ForEach-Object { $_.FullName } | Set-Content sources.txt
-          Get-ChildItem -Path test -Filter *.java -Recurse | ForEach-Object { $_.FullName } | Set-Content tests.txt
-          javac -d out @sources.txt @tests.txt
-          javac -d out-app @sources.txt
+          $cwd = (Get-Location).Path + '\'
+          $srcFiles = Get-ChildItem -Path src -Filter *.java -Recurse | ForEach-Object { $_.FullName.Replace($cwd, '') }
+          $testFiles = Get-ChildItem -Path test -Filter *.java -Recurse | ForEach-Object { $_.FullName.Replace($cwd, '') }
+          $srcFiles | Out-File -FilePath sources.txt -Encoding ascii
+          $testFiles | Out-File -FilePath tests.txt -Encoding ascii
+          & "$env:JAVA_HOME\bin\javac.exe" -d out '@sources.txt' '@tests.txt'
+          & "$env:JAVA_HOME\bin\javac.exe" -d out-app '@sources.txt'
 
       - name: Run tests (Windows)
         shell: pwsh
         run: |
-          java -cp out AllTests
+          & "$env:JAVA_HOME\bin\java.exe" -cp out AllTests
 
       - name: Build executable JAR (Windows)
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Path release -Force | Out-Null
-          jar cfe release/JabberPoint.jar JabberPoint -C out-app .
+          & "$env:JAVA_HOME\bin\jar.exe" cfe release/JabberPoint.jar JabberPoint -C out-app .
 
       - name: Upload Windows acceptance artifacts
         uses: actions/upload-artifact@v4
@@ -48,3 +51,4 @@ jobs:
           name: acceptance-windows-artifacts
           path: |
             release/JabberPoint.jar
+
