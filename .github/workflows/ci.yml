@@ -41,18 +41,14 @@ jobs:
 
       - name: Generate coverage report
         run: |
-          java -jar jacoco/lib/jacococli.jar report jacoco.exec \
-            --classfiles out \
-            --sourcefiles src \
-            --exclude "*MenuController*" \
-            --exclude "*KeyController*" \
-            --exclude "*SlideViewerComponent*" \
-            --exclude "*SlideViewerFrame*" \
-            --exclude "*AboutBox*" \
-            --exclude "*JabberPoint*" \
-            --html coverage-html \
-            --xml coverage.xml \
-            --csv coverage.csv
+          cp -R out out-report
+          rm -f out-report/AboutBox*.class
+          rm -f out-report/JabberPoint*.class
+          rm -f out-report/KeyController*.class
+          rm -f out-report/MenuController*.class
+          rm -f out-report/SlideViewerComponent*.class
+          rm -f out-report/SlideViewerFrame*.class
+          java -jar jacoco/lib/jacococli.jar report jacoco.exec --classfiles out-report --sourcefiles src --html coverage-html --xml coverage.xml --csv coverage.csv
 
       - name: Coverage summary
         run: |
