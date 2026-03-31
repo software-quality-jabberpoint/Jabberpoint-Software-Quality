@@ -1,15 +1,17 @@
 # Rubric Alignment Checklist
 
-Reference rubric: `docs/SQ_scroingrubrics.pdf` (add this file to `docs/` for submission)
-
 ## Analyse
-- System/class analysis documented with UML class diagram in `docs/Class_Diagram_Advice_Final_V0.2.asta`.
+- Analysis is documented with three individual UML diagrams:
+- Use case diagram
+- Class diagram
+- Activity diagram
+- Diagrams are submitted as course deliverables outside this GitHub repository.
 
 ## Advise
-- Advice report provided in `docs/JabberPoint_Redesign_Advice_Final.pdf`.
+- Advice report is provided as a course deliverable outside this GitHub repository.
 
 ## Designs
-- Redesign class diagram present in `docs/Class_Diagram_Advice_Final_V0.2.asta`.
+- Redesign document is provided as a course deliverable outside this GitHub repository.
 - Design patterns reflected in implementation:
   - Observer: `Presentation` + `PresentationObserver`
   - Command: `Command` + concrete commands
