@@ -21,6 +21,11 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      - name: Download JUnit (Windows)
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -Uri https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.10.2/junit-platform-console-standalone-1.10.2.jar -OutFile junit-platform-console-standalone.jar
+
       - name: Compile Java source and tests (Windows)
         shell: pwsh
         run: |
@@ -31,19 +36,19 @@ jobs:
           $testFiles = Get-ChildItem -Path test -Filter *.java -Recurse | ForEach-Object { $_.FullName.Replace($cwd, '') }
           $srcFiles | Out-File -FilePath sources.txt -Encoding ascii
           $testFiles | Out-File -FilePath tests.txt -Encoding ascii
-          & "$env:JAVA_HOME\bin\javac.exe" -d out '@sources.txt' '@tests.txt'
+          & "$env:JAVA_HOME\bin\javac.exe" -cp junit-platform-console-standalone.jar -d out '@sources.txt' '@tests.txt'
           & "$env:JAVA_HOME\bin\javac.exe" -d out-app '@sources.txt'
 
       - name: Run tests (Windows)
         shell: pwsh
         run: |
-          & "$env:JAVA_HOME\bin\java.exe" -cp out AllTests
+          & "$env:JAVA_HOME\bin\java.exe" -jar junit-platform-console-standalone.jar execute --class-path out --scan-class-path
 
       - name: Build executable JAR (Windows)
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Path release -Force | Out-Null
-          & "$env:JAVA_HOME\bin\jar.exe" cfe release/JabberPoint.jar JabberPoint -C out-app .
+          & "$env:JAVA_HOME\bin\jar.exe" cfe release/JabberPoint.jar jabberpoint.JabberPoint -C out-app .
 
       - name: Upload Windows acceptance artifacts
         uses: actions/upload-artifact@v4
