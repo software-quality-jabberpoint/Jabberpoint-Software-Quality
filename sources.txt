@@ -29,7 +29,9 @@ test/jabberpoint/test/CommandTest.java
 test/jabberpoint/test/DemoPresentationTest.java
 test/jabberpoint/test/KeyControllerTest.java
 test/jabberpoint/test/PresentationTest.java
+test/jabberpoint/test/RenderTest.java
 test/jabberpoint/test/SlideItemFactoryTest.java
 test/jabberpoint/test/SlideTest.java
 test/jabberpoint/test/StyleTest.java
+test/jabberpoint/test/XMLAccessorSaveTest.java
 test/jabberpoint/test/XMLAccessorTest.java

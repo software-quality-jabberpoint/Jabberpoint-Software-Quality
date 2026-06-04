@@ -45,7 +45,14 @@ jobs:
 
       - name: Generate coverage report
         run: |
-          java -jar jacoco/lib/jacococli.jar report jacoco.exec --classfiles out --sourcefiles src --html coverage-html --xml coverage.xml --csv coverage.csv
+          cp -R out out-report
+          rm -f out-report/jabberpoint/JabberPoint*.class
+          rm -f out-report/jabberpoint/ui/AboutBox*.class
+          rm -f out-report/jabberpoint/ui/KeyController*.class
+          rm -f out-report/jabberpoint/ui/MenuController*.class
+          rm -f out-report/jabberpoint/ui/SlideViewerComponent*.class
+          rm -f out-report/jabberpoint/ui/SlideViewerFrame*.class
+          java -jar jacoco/lib/jacococli.jar report jacoco.exec --classfiles out-report --sourcefiles src --html coverage-html --xml coverage.xml --csv coverage.csv
 
       - name: Coverage summary
         run: |
