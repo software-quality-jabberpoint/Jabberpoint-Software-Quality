@@ -21,13 +21,17 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      - name: Download JUnit
+        run: |
+          curl -sSL -o junit-platform-console-standalone.jar https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.10.2/junit-platform-console-standalone-1.10.2.jar
+
       - name: Compile Java source and tests
         run: |
           mkdir out
           mkdir out-app
           find src -name "*.java" > sources.txt
           find test -name "*.java" > tests.txt
-          javac -d out @sources.txt @tests.txt
+          javac -cp junit-platform-console-standalone.jar -d out @sources.txt @tests.txt
           javac -d out-app @sources.txt
 
       - name: Download JaCoCo
@@ -37,17 +41,17 @@ jobs:
 
       - name: Run unit tests with coverage
         run: |
-          java -javaagent:jacoco/lib/jacocoagent.jar=destfile=jacoco.exec -cp out AllTests
+          java -javaagent:jacoco/lib/jacocoagent.jar=destfile=jacoco.exec -jar junit-platform-console-standalone.jar execute --class-path out --scan-class-path
 
       - name: Generate coverage report
         run: |
           cp -R out out-report
-          rm -f out-report/AboutBox*.class
-          rm -f out-report/JabberPoint*.class
-          rm -f out-report/KeyController*.class
-          rm -f out-report/MenuController*.class
-          rm -f out-report/SlideViewerComponent*.class
-          rm -f out-report/SlideViewerFrame*.class
+          rm -f out-report/jabberpoint/JabberPoint*.class
+          rm -f out-report/jabberpoint/ui/AboutBox*.class
+          rm -f out-report/jabberpoint/ui/KeyController*.class
+          rm -f out-report/jabberpoint/ui/MenuController*.class
+          rm -f out-report/jabberpoint/ui/SlideViewerComponent*.class
+          rm -f out-report/jabberpoint/ui/SlideViewerFrame*.class
           java -jar jacoco/lib/jacococli.jar report jacoco.exec --classfiles out-report --sourcefiles src --html coverage-html --xml coverage.xml --csv coverage.csv
 
       - name: Coverage summary
@@ -75,12 +79,12 @@ jobs:
       - name: Build executable JAR
         run: |
           mkdir -p release
-          jar cfe release/JabberPoint.jar JabberPoint -C out-app .
+          jar cfe release/JabberPoint.jar jabberpoint.JabberPoint -C out-app .
 
       - name: Static quality check (javac -Xlint)
         run: |
           mkdir out-lint
-          javac -Xlint:all -d out-lint @sources.txt @tests.txt 2> lint-report.txt || true
+          javac -Xlint:all -cp junit-platform-console-standalone.jar -d out-lint @sources.txt @tests.txt 2> lint-report.txt || true
           echo "Static analysis report generated in lint-report.txt"
 
       - name: Upload Linux quality artifacts
@@ -120,7 +124,7 @@ jobs:
       - name: Build release JAR
         run: |
           mkdir -p release
-          jar cfe release/JabberPoint.jar JabberPoint -C out-app .
+          jar cfe release/JabberPoint.jar jabberpoint.JabberPoint -C out-app .
 
       - name: Upload main release artifact
         uses: actions/upload-artifact@v4

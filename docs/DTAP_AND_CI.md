@@ -12,7 +12,7 @@ This project uses a GitHub Actions development lane in:
 ## Testing (T)
 Testing lane is represented by the `test` branch and Linux CI quality job:
 - Java compile for source and tests.
-- Unit test execution via `AllTests`.
+- Unit test execution via JUnit 5 (`junit-platform-console-standalone`).
 - Code coverage report generation (JaCoCo: HTML/XML/CSV).
 - Coverage percentage summary output (`coverage-summary.txt`).
 - Line coverage quality gate (workflow fails if line coverage < 75%).
@@ -22,9 +22,16 @@ Testing lane is represented by the `test` branch and Linux CI quality job:
 - Acceptance lane is represented by the `acceptance` branch.
 - A dedicated acceptance workflow (`.github/workflows/acceptance.yml`) runs on `windows-latest` to simulate acceptance in an environment different from Linux:
   - Compiles source and tests.
-  - Runs `AllTests`.
+  - Runs JUnit 5 tests with the console launcher.
   - Builds runnable JAR artifact.
 - This supports lecturer guidance to validate behavior on another runner/OS before release.
+- Manual GUI acceptance check was performed after the refactor:
+  - Demo presentation loads.
+  - XML presentation loads from `test.xml`.
+  - Enter and arrow keys navigate slides.
+  - `q` exits the application.
+  - Menus were checked and worked.
+  - Page Up/Page Down were not available on the tested keyboard; arrow-key fallback was verified.
 
 ## Production (P)
 - Production lane is represented by `main`.
