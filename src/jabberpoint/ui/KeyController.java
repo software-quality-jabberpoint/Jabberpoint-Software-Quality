@@ -1,9 +1,8 @@
 package jabberpoint.ui;
 
 import jabberpoint.JabberPoint;
-import jabberpoint.command.ExitCommand;
-import jabberpoint.command.NextSlideCommand;
-import jabberpoint.command.PreviousSlideCommand;
+import jabberpoint.command.CommandFactory;
+import jabberpoint.command.DefaultCommandFactory;
 import jabberpoint.core.Presentation;
 
 import java.awt.event.KeyEvent;
@@ -20,12 +19,14 @@ import java.awt.event.KeyAdapter;
 */
 
 public class KeyController extends KeyAdapter {
-	private Presentation presentation; // Commands are given to the presentation
-	private JabberPoint jabberPoint;
+	private final CommandFactory commandFactory;
 
 	public KeyController(Presentation p, JabberPoint jabberPoint) {
-		presentation = p;
-		this.jabberPoint = jabberPoint;
+		this(new DefaultCommandFactory(p, jabberPoint));
+	}
+
+	public KeyController(CommandFactory commandFactory) {
+		this.commandFactory = commandFactory;
 	}
 
 	public void keyPressed(KeyEvent keyEvent) {
@@ -34,16 +35,16 @@ public class KeyController extends KeyAdapter {
 			case KeyEvent.VK_DOWN:
 			case KeyEvent.VK_ENTER:
 			case '+':
-				new NextSlideCommand(presentation).execute();
+				commandFactory.nextSlide().execute();
 				break;
 			case KeyEvent.VK_PAGE_UP:
 			case KeyEvent.VK_UP:
 			case '-':
-				new PreviousSlideCommand(presentation).execute();
+				commandFactory.previousSlide().execute();
 				break;
 			case 'q':
 			case 'Q':
-				new ExitCommand(jabberPoint).execute();
+				commandFactory.exit().execute();
 				break;
 			default:
 				break;

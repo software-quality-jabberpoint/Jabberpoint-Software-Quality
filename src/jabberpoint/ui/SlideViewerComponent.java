@@ -11,7 +11,6 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
 
 /** <p>SlideViewerComponent is a graphical component that can show slides.</p>
  * @author Ian F. Darwin, ian@darwinsys.com, Gert Florijn, Sylvia Stuurman
@@ -28,7 +27,7 @@ public class SlideViewerComponent extends JComponent implements PresentationObse
 	private transient Slide slide; // current slide
 	private Font labelFont = null; // font for labels
 	private transient Presentation presentation = null; // the presentation
-	private transient JFrame frame = null;
+	private transient TitleView titleView = null;
 	
 	private static final long serialVersionUID = 227L;
 	
@@ -41,11 +40,11 @@ public class SlideViewerComponent extends JComponent implements PresentationObse
 	private static final int YPOS = 20;
 
 	@SuppressWarnings("this-escape")
-	public SlideViewerComponent(Presentation pres, JFrame frame) {
+	public SlideViewerComponent(Presentation pres, TitleView titleView) {
 		setBackground(BGCOLOR); 
 		presentation = pres;
 		labelFont = new Font(FONTNAME, FONTSTYLE, FONTHEIGHT);
-		this.frame = frame;
+		this.titleView = titleView;
 		presentation.addObserver(this);
 	}
 
@@ -57,7 +56,7 @@ public class SlideViewerComponent extends JComponent implements PresentationObse
 		this.presentation = presentation;
 		this.slide = presentation.getCurrentSlide();
 		repaint();
-		frame.setTitle(presentation.getTitle());
+		titleView.setTitle(presentation.getTitle());
 	}
 
 // draw the slide

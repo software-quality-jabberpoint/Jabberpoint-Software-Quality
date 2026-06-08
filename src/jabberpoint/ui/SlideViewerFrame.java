@@ -1,9 +1,9 @@
 package jabberpoint.ui;
 
 import jabberpoint.JabberPoint;
-import jabberpoint.command.ExitCommand;
+import jabberpoint.command.CommandFactory;
+import jabberpoint.command.DefaultCommandFactory;
 import jabberpoint.core.Presentation;
-import jabberpoint.core.Style;
 
 import java.awt.Dimension;
 import java.awt.event.WindowEvent;
@@ -31,22 +31,23 @@ public class SlideViewerFrame extends JFrame {
 	@SuppressWarnings("this-escape")
 	public SlideViewerFrame(String title, Presentation presentation, JabberPoint jabberPoint) {
 		super(title);
-		SlideViewerComponent slideViewerComponent = new SlideViewerComponent(presentation, this);
-		setUpWindow(slideViewerComponent, presentation, jabberPoint);
+		CommandFactory commandFactory = new DefaultCommandFactory(presentation, jabberPoint);
+		SlideViewerComponent slideViewerComponent = new SlideViewerComponent(presentation, this::setTitle);
+		setUpWindow(slideViewerComponent, presentation, commandFactory);
 	}
 
 // Setup GUI
 	public void setUpWindow(SlideViewerComponent 
-			slideViewerComponent, Presentation presentation, JabberPoint jabberPoint) {
+			slideViewerComponent, Presentation presentation, CommandFactory commandFactory) {
 		setTitle(JABTITLE);
 		addWindowListener(new WindowAdapter() {
 				public void windowClosing(WindowEvent e) {
-					new ExitCommand(jabberPoint).execute();
+					commandFactory.exit().execute();
 				}
 			});
 		getContentPane().add(slideViewerComponent);
-		addKeyListener(new KeyController(presentation, jabberPoint)); // add a controller
-		setMenuBar(new MenuController(this, presentation, jabberPoint));	// add another controller
+		addKeyListener(new KeyController(commandFactory)); // add a controller
+		setMenuBar(new MenuController(this, presentation, commandFactory));	// add another controller
 		setSize(new Dimension(WIDTH, HEIGHT)); // Same sizes as Slide has.
 		setVisible(true);
 	}
