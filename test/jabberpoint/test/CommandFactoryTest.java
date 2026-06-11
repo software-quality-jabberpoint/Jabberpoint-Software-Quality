@@ -7,6 +7,8 @@ import jabberpoint.command.DefaultCommandFactory;
 import jabberpoint.core.Presentation;
 import jabberpoint.core.Slide;
 import jabberpoint.core.Style;
+import jabberpoint.io.PresentationReader;
+import jabberpoint.io.PresentationWriter;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -56,12 +58,36 @@ class CommandFactoryTest {
         assertTrue(jabberPoint.exitCalled, "exit command should call exit() on the wired JabberPoint");
     }
 
+    @Test
+    void factoryWiresPersistenceDependenciesIntoCommands() {
+        Presentation presentation = new Presentation();
+        TestPresentationReader reader = new TestPresentationReader();
+        TestPresentationWriter writer = new TestPresentationWriter();
+        CommandFactory factory = new DefaultCommandFactory(presentation, new TestJabberPoint(), reader, writer);
+
+        assertNotNull(factory.openPresentation(), "factory should create open command with its reader");
+        assertNotNull(factory.savePresentation(), "factory should create save command with its writer");
+    }
+
     private static class TestJabberPoint extends JabberPoint {
         private boolean exitCalled;
 
         @Override
         public void exit() {
             exitCalled = true;
+        }
+    }
+
+    private static class TestPresentationReader implements PresentationReader {
+        @Override
+        public void loadFile(Presentation presentation, String filename) {
+            presentation.setTitle("Injected reader");
+        }
+    }
+
+    private static class TestPresentationWriter implements PresentationWriter {
+        @Override
+        public void saveFile(Presentation presentation, String filename) {
         }
     }
 }
