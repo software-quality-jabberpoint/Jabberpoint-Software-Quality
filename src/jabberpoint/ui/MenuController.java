@@ -1,11 +1,8 @@
 package jabberpoint.ui;
 
 import jabberpoint.JabberPoint;
-import jabberpoint.command.ExitCommand;
-import jabberpoint.command.NextSlideCommand;
-import jabberpoint.command.OpenPresentationCommand;
-import jabberpoint.command.PreviousSlideCommand;
-import jabberpoint.command.SavePresentationCommand;
+import jabberpoint.command.CommandFactory;
+import jabberpoint.command.DefaultCommandFactory;
 import jabberpoint.core.Presentation;
 
 import java.awt.MenuBar;
@@ -30,7 +27,7 @@ public class MenuController extends MenuBar {
 	
 	private transient Frame parent; // the frame, only used as parent for the Dialogs
 	private transient Presentation presentation; // Commands are given to the presentation
-	private transient JabberPoint jabberPoint;
+	private transient CommandFactory commandFactory;
 	
 	private static final long serialVersionUID = 227L;
 	
@@ -47,17 +44,21 @@ public class MenuController extends MenuBar {
 	protected static final String SAVE = "Save";
 	protected static final String VIEW = "View";
 	
-	@SuppressWarnings("this-escape")
 	public MenuController(Frame frame, Presentation pres, JabberPoint jabberPoint) {
+		this(frame, pres, new DefaultCommandFactory(pres, jabberPoint));
+	}
+
+	@SuppressWarnings("this-escape")
+	public MenuController(Frame frame, Presentation pres, CommandFactory commandFactory) {
 		parent = frame;
 		presentation = pres;
-		this.jabberPoint = jabberPoint;
+		this.commandFactory = commandFactory;
 		MenuItem menuItem;
 		Menu fileMenu = new Menu(FILE);
 		fileMenu.add(menuItem = mkMenuItem(OPEN));
 		menuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent actionEvent) {
-				new OpenPresentationCommand(presentation).execute();
+				commandFactory.openPresentation().execute();
 				parent.repaint();
 			}
 		});
@@ -71,14 +72,14 @@ public class MenuController extends MenuBar {
 		fileMenu.add(menuItem = mkMenuItem(SAVE));
 		menuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				new SavePresentationCommand(presentation).execute();
+				commandFactory.savePresentation().execute();
 			}
 		});
 		fileMenu.addSeparator();
 		fileMenu.add(menuItem = mkMenuItem(EXIT));
 		menuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent actionEvent) {
-				new ExitCommand(jabberPoint).execute();
+				commandFactory.exit().execute();
 			}
 		});
 		add(fileMenu);
@@ -86,13 +87,13 @@ public class MenuController extends MenuBar {
 		viewMenu.add(menuItem = mkMenuItem(NEXT));
 		menuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent actionEvent) {
-				new NextSlideCommand(presentation).execute();
+				commandFactory.nextSlide().execute();
 			}
 		});
 		viewMenu.add(menuItem = mkMenuItem(PREV));
 		menuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent actionEvent) {
-				new PreviousSlideCommand(presentation).execute();
+				commandFactory.previousSlide().execute();
 			}
 		});
 		viewMenu.add(menuItem = mkMenuItem(GOTO));

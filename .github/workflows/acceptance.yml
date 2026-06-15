@@ -1,4 +1,8 @@
-name: Acceptance Validation (Windows)
+name: DTAP A - Acceptance (Windows)
+
+# STAGE A - ACCEPTANCE of the DTAP street.
+# Validates the build on a different OS (Windows) than the Testing stage (Linux)
+# before a release is promoted to Production.
 
 on:
   pull_request:
@@ -8,7 +12,7 @@ on:
 
 jobs:
   acceptance-windows:
-    name: Acceptance Simulation (Windows)
+    name: "DTAP A - Acceptance Simulation (Windows)"
     runs-on: windows-latest
 
     steps:

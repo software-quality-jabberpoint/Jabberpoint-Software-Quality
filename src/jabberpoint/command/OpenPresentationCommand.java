@@ -2,7 +2,6 @@ package jabberpoint.command;
 
 import jabberpoint.core.Presentation;
 import jabberpoint.io.PresentationReader;
-import jabberpoint.io.XMLAccessor;
 
 import javax.swing.JOptionPane;
 import java.io.IOException;
@@ -10,10 +9,6 @@ import java.io.IOException;
 public class OpenPresentationCommand implements Command {
     private Presentation presentation;
     private PresentationReader presentationReader;
-
-    public OpenPresentationCommand(Presentation presentation) {
-        this(presentation, new XMLAccessor());
-    }
 
     public OpenPresentationCommand(Presentation presentation, PresentationReader presentationReader) {
         this.presentation = presentation;

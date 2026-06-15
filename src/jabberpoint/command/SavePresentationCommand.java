@@ -2,7 +2,6 @@ package jabberpoint.command;
 
 import jabberpoint.core.Presentation;
 import jabberpoint.io.PresentationWriter;
-import jabberpoint.io.XMLAccessor;
 
 import javax.swing.JOptionPane;
 import java.io.IOException;
@@ -10,10 +9,6 @@ import java.io.IOException;
 public class SavePresentationCommand implements Command {
     private Presentation presentation;
     private PresentationWriter presentationWriter;
-
-    public SavePresentationCommand(Presentation presentation) {
-        this(presentation, new XMLAccessor());
-    }
 
     public SavePresentationCommand(Presentation presentation, PresentationWriter presentationWriter) {
         this.presentation = presentation;

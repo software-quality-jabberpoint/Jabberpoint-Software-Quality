@@ -52,18 +52,6 @@ class CommandTest {
     }
 
     @Test
-    void openAndSaveCommandsCanBeConstructedWithDefaults() {
-        Presentation presentation = new Presentation();
-        Command openCommand = new OpenPresentationCommand(presentation);
-        Command saveCommand = new SavePresentationCommand(presentation);
-
-        assertNotNull(openCommand, "OpenPresentationCommand should be created successfully");
-        assertNotNull(saveCommand, "SavePresentationCommand should be created successfully");
-        assertInstanceOf(Command.class, openCommand, "OpenPresentationCommand should implement Command");
-        assertInstanceOf(Command.class, saveCommand, "SavePresentationCommand should implement Command");
-    }
-
-    @Test
     void openAndSaveCommandsAcceptInjectedAccessors() {
         Presentation presentation = new Presentation();
         Command openCommand = new OpenPresentationCommand(presentation, new TestPresentationReader());
