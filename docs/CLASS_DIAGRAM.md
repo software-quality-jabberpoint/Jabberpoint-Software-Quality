@@ -250,7 +250,6 @@ classDiagram
     SlideViewerComponent --> Presentation : observes
     SlideViewerComponent --> TitleView : updates title
     SlideViewerComponent ..> Slide : draws
-    SlideViewerComponent ..> Style : uses
 
     Command <|.. NextSlideCommand
     Command <|.. PreviousSlideCommand
@@ -259,6 +258,7 @@ classDiagram
     Command <|.. ExitCommand
 
     CommandFactory <|.. DefaultCommandFactory
+    DefaultCommandFactory ..> XMLAccessor : creates (default ctor)
     DefaultCommandFactory ..> NextSlideCommand : creates
     DefaultCommandFactory ..> PreviousSlideCommand : creates
     DefaultCommandFactory ..> OpenPresentationCommand : creates
@@ -287,9 +287,11 @@ classDiagram
     XMLAccessor ..> BitmapItem : reads/writes
 
     KeyController --> CommandFactory
+    KeyController ..> DefaultCommandFactory : creates (convenience ctor)
     MenuController --> CommandFactory
     MenuController --> Presentation
     MenuController ..> AboutBox
+    MenuController ..> DefaultCommandFactory : creates (convenience ctor)
     SlideViewerFrame ..> SlideViewerComponent : creates
     SlideViewerFrame ..> DefaultCommandFactory : creates
     SlideViewerFrame ..> KeyController : creates
