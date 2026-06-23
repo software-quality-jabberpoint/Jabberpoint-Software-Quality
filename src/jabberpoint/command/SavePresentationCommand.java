@@ -18,6 +18,9 @@ public class SavePresentationCommand implements Command {
     @Override
     public void execute() {
         String filename = JOptionPane.showInputDialog("File name?");
+        if (filename == null || filename.trim().isEmpty()) {
+            return; // user cancelled or entered nothing
+        }
         try {
             presentationWriter.saveFile(presentation, filename);
         } catch (IOException ex) {

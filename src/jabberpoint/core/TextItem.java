@@ -20,7 +20,7 @@ import java.text.AttributedString;
 public class TextItem extends SlideItem {
 	private String text;
 	private TextItemRenderer renderer;
-	
+
 	private static final String EMPTYTEXT = "No Text Given";
 
 // a textitem of level level, with the text string
@@ -52,13 +52,13 @@ public class TextItem extends SlideItem {
 	}
 
 // give the bounding box of the item
-	public Rectangle getBoundingBox(Graphics g, ImageObserver observer, 
+	public Rectangle getBoundingBox(Graphics g, ImageObserver observer,
 			float scale, Style myStyle) {
 		return renderer.getBoundingBox(this, g, observer, scale, myStyle);
 	}
 
 // draw the item
-	public void draw(int x, int y, float scale, Graphics g, 
+	public void draw(int x, int y, float scale, Graphics g,
 			Style myStyle, ImageObserver o) {
 		renderer.draw(this, x, y, scale, g, myStyle, o);
 	  }
