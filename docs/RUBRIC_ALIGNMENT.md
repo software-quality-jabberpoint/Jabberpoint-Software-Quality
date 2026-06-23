@@ -19,7 +19,8 @@
 
 ## Realise (Code)
 - Source implementation in `src/`.
-- Unit tests in `test/` and aggregator `test/AllTests.java`.
+- Source code is organized into packages: `jabberpoint.core`, `jabberpoint.io`, `jabberpoint.command`, and `jabberpoint.ui`.
+- Unit tests in `test/`, implemented with JUnit 5.
 - CI pipeline compiles, tests, generates coverage, and exports static analysis reports.
 
 ## Programming Principles
