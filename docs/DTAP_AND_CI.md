@@ -19,7 +19,7 @@ in the GitHub Actions UI.
 - Unit test execution via JUnit 5 (41 tests across 12 test classes).
 - Coverage measured by JaCoCo on **application classes only** (not test sources).
   - GUI bootstrap classes that require a live display (`JabberPoint`, `AboutBox`, `MenuController`, `SlideViewerFrame`) are excluded; all other classes including `KeyController` and `SlideViewerComponent` are measured.
-  - Achieved line coverage: ~89% (gate: ≥ 75%).
+  - Achieved line coverage: above the 75% gate; locally measured around 81%.
 - Coverage report exported as HTML/XML/CSV artifacts.
 - Static quality report (`javac -Xlint`) exported as `lint-report.txt`.
 

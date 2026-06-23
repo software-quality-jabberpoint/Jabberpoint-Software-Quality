@@ -22,8 +22,13 @@ public class OpenPresentationCommand implements Command {
             return; // user cancelled or entered nothing; keep current presentation
         }
         try {
+            Presentation loadedPresentation = new Presentation();
+            presentationReader.loadFile(loadedPresentation, filename);
             presentation.clear();
-            presentationReader.loadFile(presentation, filename);
+            presentation.setTitle(loadedPresentation.getTitle());
+            for (int slideNumber = 0; slideNumber < loadedPresentation.getSize(); slideNumber++) {
+                presentation.append(loadedPresentation.getSlide(slideNumber));
+            }
             presentation.setSlideNumber(0);
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(null, "IO Error: " + ex,

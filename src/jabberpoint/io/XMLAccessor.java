@@ -36,11 +36,11 @@ import org.w3c.dom.NodeList;
  */
 
 public class XMLAccessor extends Accessor {
-	
+
     /** Default API to use. */
     protected static final String DEFAULT_API_TO_USE = "dom";
     private final SlideItemFactory slideItemFactory;
-    
+
     /** namen van xml tags of attributen */
     protected static final String SHOWTITLE = "showtitle";
     protected static final String SLIDETITLE = "title";
@@ -48,7 +48,7 @@ public class XMLAccessor extends Accessor {
     protected static final String ITEM = "item";
     protected static final String LEVEL = "level";
     protected static final String KIND = "kind";
-    
+
     /** tekst van messages */
     protected static final String PCE = "Parser Configuration Exception";
     protected static final String UNKNOWNTYPE = "Unknown Element type";
@@ -62,13 +62,13 @@ public class XMLAccessor extends Accessor {
         this.slideItemFactory = slideItemFactory;
     }
     
-    
+
     public String getTitle(Element element, String tagName) {
-    	NodeList titles = element.getElementsByTagName(tagName);
-    	if (titles.getLength() == 0 || titles.item(0) == null) {
-    		return "";
-    	}
-    	return titles.item(0).getTextContent();
+        NodeList titles = element.getElementsByTagName(tagName);
+        if (titles.getLength() == 0 || titles.item(0) == null) {
+            return "";
+        }
+        return titles.item(0).getTextContent();
     }
 
 	public void loadFile(Presentation presentation, String filename) throws IOException {
@@ -78,7 +78,7 @@ public class XMLAccessor extends Accessor {
 			factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
 			factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
 			factory.setExpandEntityReferences(false);
-			DocumentBuilder builder = factory.newDocumentBuilder();    
+			DocumentBuilder builder = factory.newDocumentBuilder();
 			Document document = builder.parse(new File(filename)); // Create a JDOM document
 			Element doc = document.getDocumentElement();
 			presentation.setTitle(getTitle(doc, SHOWTITLE));
@@ -147,7 +147,7 @@ public class XMLAccessor extends Accessor {
 				out.println("<title>" + escape(slide.getTitle()) + "</title>");
 				List<SlideItem> slideItems = slide.getSlideItems();
 				for (SlideItem slideItem : slideItems) {
-					out.print("<item kind="); 
+					out.print("<item kind=");
 					if (slideItem instanceof TextItem) {
 						out.print("\"" + SlideItemFactory.TEXT + "\" level=\"" + slideItem.getLevel() + "\">");
 						out.print(escape(((TextItem) slideItem).getText()));
