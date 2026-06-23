@@ -1,4 +1,10 @@
-name: CI Build, Test, Release
+name: DTAP Pipeline (Development, Testing, Production)
+
+# This pipeline implements the DTAP street:
+#   D - Development : compile source + tests (fast feedback on every push/PR)
+#   T - Testing     : run unit tests, enforce coverage gate, static analysis
+#   A - Acceptance  : see .github/workflows/acceptance.yml (runs on a different OS)
+#   P - Production  : build and publish the release artifact from main
 
 on:
   pull_request:
@@ -7,9 +13,44 @@ on:
     branches: [ main, test, develop ]
 
 jobs:
-  quality-linux:
-    name: Quality Gate (Linux)
+  # ---------------------------------------------------------------------------
+  # STAGE D - DEVELOPMENT
+  # Fast compile-only sanity build so broken code is caught before the heavier
+  # testing stage runs.
+  # ---------------------------------------------------------------------------
+  development:
+    name: "DTAP D - Development (compile)"
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Download JUnit
+        run: |
+          curl -sSL -o junit-platform-console-standalone.jar https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.10.2/junit-platform-console-standalone-1.10.2.jar
+
+      - name: Compile source and tests
+        run: |
+          mkdir out
+          find src -name "*.java" > sources.txt
+          find test -name "*.java" > tests.txt
+          javac -cp junit-platform-console-standalone.jar -d out @sources.txt @tests.txt
+
+  # ---------------------------------------------------------------------------
+  # STAGE T - TESTING
+  # Runs the unit tests, enforces the coverage quality gate and exports static
+  # analysis. Only runs once Development (compile) has succeeded.
+  # ---------------------------------------------------------------------------
+  testing:
+    name: "DTAP T - Testing (unit tests + quality gate)"
+    runs-on: ubuntu-latest
+    needs: development
 
     steps:
       - name: Checkout repository
@@ -21,13 +62,17 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      - name: Download JUnit
+        run: |
+          curl -sSL -o junit-platform-console-standalone.jar https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.10.2/junit-platform-console-standalone-1.10.2.jar
+
       - name: Compile Java source and tests
         run: |
           mkdir out
           mkdir out-app
           find src -name "*.java" > sources.txt
           find test -name "*.java" > tests.txt
-          javac -d out @sources.txt @tests.txt
+          javac -cp junit-platform-console-standalone.jar -d out @sources.txt @tests.txt
           javac -d out-app @sources.txt
 
       - name: Download JaCoCo
@@ -37,17 +82,21 @@ jobs:
 
       - name: Run unit tests with coverage
         run: |
-          java -javaagent:jacoco/lib/jacocoagent.jar=destfile=jacoco.exec -cp out AllTests
+          java -javaagent:jacoco/lib/jacocoagent.jar=destfile=jacoco.exec -jar junit-platform-console-standalone.jar execute --class-path out --scan-class-path
 
       - name: Generate coverage report
         run: |
-          cp -R out out-report
-          rm -f out-report/AboutBox*.class
-          rm -f out-report/JabberPoint*.class
-          rm -f out-report/KeyController*.class
-          rm -f out-report/MenuController*.class
-          rm -f out-report/SlideViewerComponent*.class
-          rm -f out-report/SlideViewerFrame*.class
+          # Measure APPLICATION classes only (out-app); test classes are never
+          # counted towards coverage.
+          # The only exclusions are GUI bootstrap classes that require a live
+          # display and therefore cannot be exercised on a headless CI runner:
+          #   JabberPoint (main), AboutBox, MenuController, SlideViewerFrame.
+          # All other UI logic (KeyController, SlideViewerComponent) IS tested.
+          cp -R out-app out-report
+          rm -f out-report/jabberpoint/JabberPoint*.class
+          rm -f out-report/jabberpoint/ui/AboutBox*.class
+          rm -f out-report/jabberpoint/ui/MenuController*.class
+          rm -f out-report/jabberpoint/ui/SlideViewerFrame*.class
           java -jar jacoco/lib/jacococli.jar report jacoco.exec --classfiles out-report --sourcefiles src --html coverage-html --xml coverage.xml --csv coverage.csv
 
       - name: Coverage summary
@@ -75,12 +124,12 @@ jobs:
       - name: Build executable JAR
         run: |
           mkdir -p release
-          jar cfe release/JabberPoint.jar JabberPoint -C out-app .
+          jar cfe release/JabberPoint.jar jabberpoint.JabberPoint -C out-app .
 
       - name: Static quality check (javac -Xlint)
         run: |
           mkdir out-lint
-          javac -Xlint:all -d out-lint @sources.txt @tests.txt 2> lint-report.txt || true
+          javac -Xlint:all -cp junit-platform-console-standalone.jar -d out-lint @sources.txt @tests.txt 2> lint-report.txt || true
           echo "Static analysis report generated in lint-report.txt"
 
       - name: Upload Linux quality artifacts
@@ -95,10 +144,15 @@ jobs:
             lint-report.txt
             release/JabberPoint.jar
 
-  release-main:
-    name: Release Artifact (Main)
+  # ---------------------------------------------------------------------------
+  # STAGE P - PRODUCTION
+  # Builds and publishes the production release artifact. Only runs on a push to
+  # main and only after the Testing quality gate has passed.
+  # ---------------------------------------------------------------------------
+  production:
+    name: "DTAP P - Production (release artifact)"
     runs-on: ubuntu-latest
-    needs: quality-linux
+    needs: testing
     if: github.event_name == 'push' && github.ref_name == 'main'
 
     steps:
@@ -120,7 +174,7 @@ jobs:
       - name: Build release JAR
         run: |
           mkdir -p release
-          jar cfe release/JabberPoint.jar JabberPoint -C out-app .
+          jar cfe release/JabberPoint.jar jabberpoint.JabberPoint -C out-app .
 
       - name: Upload main release artifact
         uses: actions/upload-artifact@v4
