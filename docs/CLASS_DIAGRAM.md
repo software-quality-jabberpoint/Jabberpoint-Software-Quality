@@ -8,10 +8,10 @@ Mermaid-aware Markdown viewer (GitHub, IntelliJ, VS Code).
 The system applies several design patterns:
 
 - **Command** (`command` package): UI controllers trigger actions via `Command` objects supplied by a `CommandFactory`.
-- **Abstract Factory / DIP**: `CommandFactory` and `SlideItemFactory` decouple clients from concrete construction.
+- **Factory / DIP**: `CommandFactory` and `SlideItemFactory` decouple clients from concrete construction.
 - **Observer**: `Presentation` notifies `PresentationObserver`s (the `SlideViewerComponent`) of state changes.
-- **Strategy / Bridge**: `SlideItem` subclasses delegate drawing to dedicated renderer classes.
-- **Template (Accessor)**: `Accessor` unifies read/write of presentations; `XMLAccessor` implements XML I/O.
+- **Renderer delegation**: `SlideItem` subclasses delegate drawing to dedicated renderer classes.
+- **Persistence abstraction**: `Accessor`, `PresentationReader`, and `PresentationWriter` define presentation I/O contracts; `XMLAccessor` implements XML I/O.
 
 ## Diagram
 
@@ -304,7 +304,7 @@ classDiagram
     JabberPoint ..> Style : initialises
 
     %% ===================== design pattern legend =====================
-    %% Blue = Observer | Green = Command | Purple = Factory Method | Yellow = Non-Pattern
+    %% Blue = Observer | Green = Command | Purple = Factory | Yellow = Non-Pattern
     classDef observer fill:#90caf9,stroke:#1565c0,color:#000;
     classDef command fill:#a5d6a7,stroke:#2e7d32,color:#000;
     classDef factory fill:#ce93d8,stroke:#6a1b9a,color:#000;
@@ -317,7 +317,7 @@ classDiagram
 |-------|---------|---------|
 | Blue | Observer | `Presentation` (subject), `PresentationObserver`, `SlideViewerComponent` |
 | Green | Command | `Command`, `NextSlideCommand`, `PreviousSlideCommand`, `OpenPresentationCommand`, `SavePresentationCommand`, `ExitCommand` |
-| Purple | Factory Method | `CommandFactory`, `DefaultCommandFactory`, `SlideItemFactory` |
+| Purple | Factory | `CommandFactory`, `DefaultCommandFactory`, `SlideItemFactory` |
 | Yellow | Non-Pattern | All remaining domain, I/O, UI and rendering classes |
 
 ## Package legend
