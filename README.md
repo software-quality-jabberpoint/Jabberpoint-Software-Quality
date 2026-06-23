@@ -17,7 +17,7 @@ The focus of the redesign is to improve maintainability, extensibility, testabil
   - `Presentation` notifies registered `PresentationObserver` implementations when state changes.
 - **Command**
   - User actions are encapsulated as command objects.
-- **Factory Method**
+- **Factory**
   - Slide item creation is centralized in `SlideItemFactory`.
 
 ## Requirements

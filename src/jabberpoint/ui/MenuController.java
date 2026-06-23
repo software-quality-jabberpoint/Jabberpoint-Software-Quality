@@ -100,8 +100,16 @@ public class MenuController extends MenuBar {
 		menuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent actionEvent) {
 				String pageNumberStr = JOptionPane.showInputDialog((Object)PAGENR);
-				int pageNumber = Integer.parseInt(pageNumberStr);
-				presentation.setSlideNumber(pageNumber - 1);
+				if (pageNumberStr == null) {
+					return; // user cancelled
+				}
+				try {
+					int pageNumber = Integer.parseInt(pageNumberStr.trim());
+					presentation.setSlideNumber(pageNumber - 1);
+				} catch (NumberFormatException ex) {
+					JOptionPane.showMessageDialog(parent, "Please enter a valid page number.",
+							"Jabberpoint Error", JOptionPane.ERROR_MESSAGE);
+				}
 			}
 		});
 		add(viewMenu);

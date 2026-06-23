@@ -21,6 +21,7 @@ import org.xml.sax.SAXException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 
@@ -35,11 +36,11 @@ import org.w3c.dom.NodeList;
  */
 
 public class XMLAccessor extends Accessor {
-	
+
     /** Default API to use. */
     protected static final String DEFAULT_API_TO_USE = "dom";
     private final SlideItemFactory slideItemFactory;
-    
+
     /** namen van xml tags of attributen */
     protected static final String SHOWTITLE = "showtitle";
     protected static final String SLIDETITLE = "title";
@@ -47,7 +48,7 @@ public class XMLAccessor extends Accessor {
     protected static final String ITEM = "item";
     protected static final String LEVEL = "level";
     protected static final String KIND = "kind";
-    
+
     /** tekst van messages */
     protected static final String PCE = "Parser Configuration Exception";
     protected static final String UNKNOWNTYPE = "Unknown Element type";
@@ -61,17 +62,23 @@ public class XMLAccessor extends Accessor {
         this.slideItemFactory = slideItemFactory;
     }
     
-    
+
     public String getTitle(Element element, String tagName) {
-    	NodeList titles = element.getElementsByTagName(tagName);
-    	return titles.item(0).getTextContent();
-    	
+        NodeList titles = element.getElementsByTagName(tagName);
+        if (titles.getLength() == 0 || titles.item(0) == null) {
+            return "";
+        }
+        return titles.item(0).getTextContent();
     }
 
 	public void loadFile(Presentation presentation, String filename) throws IOException {
 		int slideNumber, itemNumber, max = 0, maxItems = 0;
 		try {
-			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();    
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+			factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+			factory.setExpandEntityReferences(false);
+			DocumentBuilder builder = factory.newDocumentBuilder();
 			Document document = builder.parse(new File(filename)); // Create a JDOM document
 			Element doc = document.getDocumentElement();
 			presentation.setTitle(getTitle(doc, SHOWTITLE));
@@ -92,30 +99,32 @@ public class XMLAccessor extends Accessor {
 				}
 			}
 		} 
-		catch (IOException iox) {
-			System.err.println(iox.toString());
-		}
 		catch (SAXException sax) {
-			System.err.println(sax.getMessage());
+			throw new IOException("Malformed presentation XML: " + sax.getMessage(), sax);
 		}
 		catch (ParserConfigurationException pcx) {
-			System.err.println(PCE);
-		}	
+			throw new IOException(PCE, pcx);
+		}
 	}
 
 	public void loadSlideItem(Slide slide, Element item) {
 		int level = 1; // default
 		NamedNodeMap attributes = item.getAttributes();
-		String leveltext = attributes.getNamedItem(LEVEL).getTextContent();
-		if (leveltext != null) {
+		Node levelNode = attributes.getNamedItem(LEVEL);
+		if (levelNode != null) {
 			try {
-				level = Integer.parseInt(leveltext);
+				level = Integer.parseInt(levelNode.getTextContent());
 			}
 			catch(NumberFormatException x) {
 				System.err.println(NFE);
 			}
 		}
-		String type = attributes.getNamedItem(KIND).getTextContent();
+		Node kindNode = attributes.getNamedItem(KIND);
+		if (kindNode == null) {
+			System.err.println(UNKNOWNTYPE + ": <missing kind>");
+			return;
+		}
+		String type = kindNode.getTextContent();
 		try {
 			slide.append(slideItemFactory.createSlideItem(type, level, item.getTextContent()));
 		}
@@ -125,38 +134,45 @@ public class XMLAccessor extends Accessor {
 	}
 
 	public void saveFile(Presentation presentation, String filename) throws IOException {
-		PrintWriter out = new PrintWriter(new FileWriter(filename));
-		out.println("<?xml version=\"1.0\"?>");
-		out.println("<!DOCTYPE presentation SYSTEM \"jabberpoint.dtd\">");
-		out.println("<presentation>");
-		out.print("<showtitle>");
-		out.print(presentation.getTitle());
-		out.println("</showtitle>");
-		for (int slideNumber=0; slideNumber<presentation.getSize(); slideNumber++) {
-			Slide slide = presentation.getSlide(slideNumber);
-			out.println("<slide>");
-			out.println("<title>" + slide.getTitle() + "</title>");
-			List<SlideItem> slideItems = slide.getSlideItems();
-			for (SlideItem slideItem : slideItems) {
-				out.print("<item kind="); 
-				if (slideItem instanceof TextItem) {
-					out.print("\"" + SlideItemFactory.TEXT + "\" level=\"" + slideItem.getLevel() + "\">");
-					out.print( ( (TextItem) slideItem).getText());
-				}
-				else {
-					if (slideItem instanceof BitmapItem) {
-						out.print("\"" + SlideItemFactory.IMAGE + "\" level=\"" + slideItem.getLevel() + "\">");
-						out.print( ( (BitmapItem) slideItem).getName());
+		try (PrintWriter out = new PrintWriter(new FileWriter(filename))) {
+			out.println("<?xml version=\"1.0\"?>");
+			out.println("<!DOCTYPE presentation SYSTEM \"jabberpoint.dtd\">");
+			out.println("<presentation>");
+			out.print("<showtitle>");
+			out.print(escape(presentation.getTitle()));
+			out.println("</showtitle>");
+			for (int slideNumber=0; slideNumber<presentation.getSize(); slideNumber++) {
+				Slide slide = presentation.getSlide(slideNumber);
+				out.println("<slide>");
+				out.println("<title>" + escape(slide.getTitle()) + "</title>");
+				List<SlideItem> slideItems = slide.getSlideItems();
+				for (SlideItem slideItem : slideItems) {
+					out.print("<item kind=");
+					if (slideItem instanceof TextItem) {
+						out.print("\"" + SlideItemFactory.TEXT + "\" level=\"" + slideItem.getLevel() + "\">");
+						out.print(escape(((TextItem) slideItem).getText()));
 					}
 					else {
-						System.out.println("Ignoring " + slideItem);
+						if (slideItem instanceof BitmapItem) {
+							out.print("\"" + SlideItemFactory.IMAGE + "\" level=\"" + slideItem.getLevel() + "\">");
+							out.print(escape(((BitmapItem) slideItem).getName()));
+						}
+						else {
+							System.out.println("Ignoring " + slideItem);
+						}
 					}
+					out.println("</item>");
 				}
-				out.println("</item>");
+				out.println("</slide>");
 			}
-			out.println("</slide>");
+			out.println("</presentation>");
 		}
-		out.println("</presentation>");
-		out.close();
+	}
+
+	private static String escape(String value) {
+		if (value == null) {
+			return "";
+		}
+		return value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
 	}
 }

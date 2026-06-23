@@ -35,15 +35,16 @@ class XMLAccessorTest {
     }
 
     @Test
-    void loadFileLeavesPresentationUnchangedWhenFileIsMissing() {
+    void loadFilePropagatesIOExceptionWhenFileIsMissing() {
         Style.createStyles();
         Presentation presentation = new Presentation();
         XMLAccessor accessor = new XMLAccessor();
         int initialSize = presentation.getSize();
         int initialSlideNumber = presentation.getSlideNumber();
 
-        assertDoesNotThrow(() -> accessor.loadFile(presentation, "nonexistent.xml"),
-                "loadFile should handle missing files internally in current implementation");
+        assertThrows(java.io.IOException.class,
+                () -> accessor.loadFile(presentation, "nonexistent.xml"),
+                "loadFile should propagate an IOException for missing files instead of swallowing it");
 
         assertEquals(initialSize, presentation.getSize(), "Presentation size should remain unchanged after failed load");
         assertEquals(initialSlideNumber, presentation.getSlideNumber(), "Slide number should remain unchanged after failed load");

@@ -17,10 +17,18 @@ public class OpenPresentationCommand implements Command {
 
     @Override
     public void execute() {
-        presentation.clear();
         String filename = JOptionPane.showInputDialog("File name?");
+        if (filename == null || filename.trim().isEmpty()) {
+            return; // user cancelled or entered nothing; keep current presentation
+        }
         try {
-            presentationReader.loadFile(presentation, filename);
+            Presentation loadedPresentation = new Presentation();
+            presentationReader.loadFile(loadedPresentation, filename);
+            presentation.clear();
+            presentation.setTitle(loadedPresentation.getTitle());
+            for (int slideNumber = 0; slideNumber < loadedPresentation.getSize(); slideNumber++) {
+                presentation.append(loadedPresentation.getSlide(slideNumber));
+            }
             presentation.setSlideNumber(0);
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(null, "IO Error: " + ex,
