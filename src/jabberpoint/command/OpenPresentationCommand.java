@@ -17,9 +17,12 @@ public class OpenPresentationCommand implements Command {
 
     @Override
     public void execute() {
-        presentation.clear();
         String filename = JOptionPane.showInputDialog("File name?");
+        if (filename == null || filename.trim().isEmpty()) {
+            return; // user cancelled or entered nothing; keep current presentation
+        }
         try {
+            presentation.clear();
             presentationReader.loadFile(presentation, filename);
             presentation.setSlideNumber(0);
         } catch (IOException ex) {
