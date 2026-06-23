@@ -7,6 +7,7 @@ import jabberpoint.io.XMLAccessor;
 import jabberpoint.ui.SlideViewerFrame;
 
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 import java.io.IOException;
 
@@ -35,22 +36,23 @@ public class JabberPoint {
 
 	/** Het Main Programma */
 	public static void main(String argv[]) {
-		
-		Style.createStyles();
-		JabberPoint jabberPoint = new JabberPoint();
-		Presentation presentation = new Presentation();
-		new SlideViewerFrame(JABVERSION, presentation, jabberPoint);
-		try {
-			if (argv.length == 0) { // een demo presentatie
-				new DemoPresentation().loadFile(presentation, "");
-			} else {
-				new XMLAccessor().loadFile(presentation, argv[0]);
+		SwingUtilities.invokeLater(() -> {
+			Style.createStyles();
+			JabberPoint jabberPoint = new JabberPoint();
+			Presentation presentation = new Presentation();
+			new SlideViewerFrame(JABVERSION, presentation, jabberPoint);
+			try {
+				if (argv.length == 0) { // een demo presentatie
+					new DemoPresentation().loadFile(presentation, "");
+				} else {
+					new XMLAccessor().loadFile(presentation, argv[0]);
+				}
+				presentation.setSlideNumber(0);
+			} catch (IOException ex) {
+				JOptionPane.showMessageDialog(null,
+						IOERR + ex, JABERR,
+						JOptionPane.ERROR_MESSAGE);
 			}
-			presentation.setSlideNumber(0);
-		} catch (IOException ex) {
-			JOptionPane.showMessageDialog(null,
-					IOERR + ex, JABERR,
-					JOptionPane.ERROR_MESSAGE);
-		}
+		});
 	}
 }

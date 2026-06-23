@@ -4,6 +4,7 @@ import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.image.ImageObserver;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /** <p>A slide containing presentation data.</p>
@@ -59,7 +60,7 @@ public class Slide {
 
 	// give all SlideItems
 	public List<SlideItem> getSlideItems() {
-		return items;
+		return Collections.unmodifiableList(items);
 	}
 
 	// give the size of the Slide
